@@ -1,5 +1,4 @@
 /* count digits, white space, others */
-
 /*
 
 #include <stdio.h>
@@ -37,6 +36,8 @@ int main(void)
 */
 
 
+
+
 /* Write a program to print a histogram of the lengths of words in its input. It is
 easy to draw the histogram with the bars horizontal; a vertical orientation is more challenging. */
 
@@ -60,11 +61,13 @@ int main(void)
                         if (len <= MAX_WORD_LEN) {
                                 ++nlength[len];
                                 len = 0;
-                        } else {
+                        } 
+
+		} else {
                                 ++len;
                         }
                 }
-        }
+
 
         for (i = 0; i < MAX_WORD_LEN; ++i) {      // Changed ++i from i++ and it fixed //
                 printf("%2d ", i);
@@ -78,7 +81,8 @@ int main(void)
 }
 
 
-/*
+
+/* // Ewk version//
 
 include <stdio.h>
 
