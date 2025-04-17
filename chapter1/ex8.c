@@ -1,30 +1,20 @@
-#include<stdio.h>
-
-/* this is character counting program */
-
-int main(void)
-/*
-{
-	long nc;
-	nc =0;
-	while(getchar() != EOF)
-		nc++;
-	printf("%ld\n", nc);
-}
-*/
 
 
 /* Ex 1.8 program to count blanks, tabs, and newlines */
 
+#include<stdio.h>
+int main(void)
 {
 	int c, nb, nt, nl;
+
 	nb = nt = nl = 0;
-	while((c = getchar()) != EOF){
+
+	while ((c = getchar()) != EOF) {
 		if (c == ' ')	// nb ?
 			nb++;
 		if (c == '\t')
 			nt++;
-		if(c == '\n')
+		if (c == '\n')
 			nl++;
 	}
 
