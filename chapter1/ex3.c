@@ -13,9 +13,9 @@ int main(void)
 	fahr = lower;
 	printf("Fahrenheit Celsius\n");
 	printf("------------------\n");
-	while (fahr <= upper) {
-		celsius =  5 * (fahr-32) / 9;
-		printf("%d\t%d\n", fahr, celsius);
+	while (fahr <= upper) {                           // This can be done with for loop
+		celsius =  5 * (fahr-32) / 9;            //for (fahr=0; fahr<=300; fahr=fahr+20) {
+		printf("%d\t%d\n", fahr, celsius);      //printf("%3d %6f\n", fahr, (5.0/9.0)*(fahr-32));
 		fahr = fahr + step;
 	}
-}
+	}

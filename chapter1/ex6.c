@@ -4,7 +4,7 @@ int main(void)
 {
 	int c;
 
-	while ((c = getchar()) != EOF) {
+	while ((c = getchar()) != EOF) {// We may check the output by using prinf with if else switch such as if (ret == 0) printf ("Return is false\n")
 		printf("%d", c != EOF);
 		putchar(c);
 	}
