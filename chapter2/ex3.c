@@ -45,13 +45,19 @@ int main(void)
 {
 	int lim = 100;
 	char line[lim]; // current line
-	int output;
+	int n;
 	int len;
 
 	while ((len = getaline(line, lim)) > 0) {
-		output = htoi(line);
+		n = htoi(line);
 
-		printf("The value of %s is %d\n", line, output);
+		if (n > 0) {
+			n *= 16;
+			printf("The converted integer value is: %d\n", n);
+		} else {
+			printf("Invalid input\n");
+			return n;
+		}
 	}
 }
 
