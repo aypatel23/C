@@ -52,13 +52,14 @@ int main(void)
 		n = htoi(line);
 
 		if (n > 0) {
-			n *= 16;
 			printf("The converted integer value is: %d\n", n);
 		} else {
 			printf("Invalid input\n");
 			return n;
 		}
 	}
+
+	return 0;
 }
 
 // convert the hex string to hex number
@@ -76,23 +77,28 @@ int htoi(char s[])
 	int n, i=0;
 	n = 0;
 
-	if ( s[i] == '0') {
-		++i;
-		if(s[i] == 'x' || s[i] == 'X')
-			++i;
-	}
+	while ((c = tolower(s[i])) != '\n') {
+		n *= 16;
 
-	while ((c = tolower(s[i])) != '\0') {
-		if(c >= '0' && c <= '9')
+		if (i == 0 && c == '0') {
+			++i;
+			if(s[i] == 'x' || s[i] == 'X') {
+				++i;
+				continue;
+			}
+		} else if(c >= '0' && c <= '9') {
 			n = 10 * n + (c - '0');
-		else if(c >= 'a' && c <= 'f')
+		} else if(c >= 'a' && c <= 'f') {
 			n = n + 10 + (c - 'a');
-		else if(c >= 'A' && c <= 'F')
+		} else if(c >= 'A' && c <= 'F') {
 			n = n + 10 + (c - 'A');
-		else if(c > 'f')
+		} else if(c > 'f') {
 			return -1;
-		return n;
+		}
+
+		i++;
 	}
+	return n;
 }
 // defination of getaline function by using different variable
 int getaline(char s[], int lim)//s is an array, and the second, lim, is an integer.
