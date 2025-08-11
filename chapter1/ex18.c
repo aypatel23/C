@@ -5,14 +5,13 @@
 #define MAXLINE 1000
 
 int getaline(char line[], int lim);
-int remove_trail(char rline[]);
 
 int main(void)
 {
 	int len;
 	char line[MAXLINE];
 
-	while ((len = getaline(line, MAXLINE)) > 0)//if (remove_trail(line) > 0)
+	while ((len = getaline(line, MAXLINE)) > 0)
 		printf("%s", line);
 }
 
