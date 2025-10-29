@@ -7,6 +7,7 @@
 #include<stdio.h>
 #include<string.h>
 #include <limits.h>
+#include <stdlib.h>
 
 #define MAXNUMBER 100
 
@@ -25,12 +26,13 @@ void reverse(char s[])
 void itoa(int n, char s[])
 {
 	int i, sign;
-	if ((sign = n) < 0) /* record sign */
-		n = -n; /* make n positive */
+
+	sign = n;
+	printf("integer called variable sign is %d\n", sign);
 	i = 0;
 	do { /* generate digits in reverse order */
-		s[i++] = n % 10 + '0'; /* get next digit */
-	} while ((n /= 10) > 0); /* delete it */
+		s[i++] = abs(n % 10) + '0'; /* get next digit */
+	} while ((n /= 10) != 0); /* delete it */
 	if (sign < 0)
 		s[i++] = '-';
 	s[i] = '\0';
