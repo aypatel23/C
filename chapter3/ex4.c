@@ -6,6 +6,7 @@
 
 #include<stdio.h>
 #include<string.h>
+#include <limits.h>
 
 #define MAXNUMBER 100
 
@@ -41,7 +42,10 @@ int main(void)
 	int number;
 	char str[MAXNUMBER];
 
-	number = -2147483648;
+	printf("Largest negative int is %d\n", INT_MIN);
+
+	number = INT_MIN;
+	//number = -420000000;
 
 	itoa(number, str);
 	printf("%s", str);
