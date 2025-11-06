@@ -42,25 +42,6 @@ int getaline(char s[], int lim)
 	return i;
 }
 
-/*
-int getaline(char s[], int lim)
-{
-	int c, i;
-
-	for (i = 0; i < lim-1 && ((c = getchar()) != EOF) && c != '\n'; ++i) {
-		s[i] = c;
-	}
-
-	if (c == '\n') {
-		s[i] = c;
-		++i;
-	}
-
-	s[i] = '\0';
-	return i;// this will returning the value of i to main()
-}
-*/
-
 /* strindex: return index of t in s, -1 if none */
 // s is input line, t is the pattern to look for
 int strindex(char s[], char t[])
@@ -77,13 +58,10 @@ int strindex(char s[], char t[])
 			printf("char %c in string s at index j is %d\n", s[j], j);
 			printf("char %c in string t at index k is %d\n", t[k], k);
 		}
-			//;
 		if (k > 0 && t[k] == '\0') {
 			pos = i;
-		}// TODO
-			//return i;
+		}
 	}
-	// return -1;
 	return pos;
 }
 
