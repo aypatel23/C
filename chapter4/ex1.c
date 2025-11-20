@@ -14,12 +14,12 @@ int main(void)
 	char pattern[] = "ould"; /* pattern to search for */
 	int ret;
 
-	while (getaline(line, MAXLINE) > 0){
+	while (getaline(line, MAXLINE) > 0) {
 		ret = strindex(line, pattern);
 
 		if (ret > 0) {
 			printf("Found match at index %d\n", strindex(line, pattern));
-			printf("%s", line); // TODO index will off by one
+			printf("%s", line); // index will off by one
 			found++;
 		} else {
 			printf("no match found\n");
@@ -33,8 +33,9 @@ int main(void)
 int getaline(char s[], int lim)
 {
 	int c, i;
+
 	i = 0;
-	while (--lim > 0 && (c=getchar()) != EOF && c != '\n')
+	while (--lim > 0 && (c = getchar()) != EOF && c != '\n')
 		s[i++] = c;
 	if (c == '\n')
 		s[i++] = c;
@@ -52,16 +53,14 @@ int strindex(char s[], char t[])
 	for (i = 0; s[i] != '\0'; i++) {
 		// printf("index i is %d\n", i);
 		// printf("char %c in string s at index j is %d\n", s[i], i); // w i l l
-		for (j=i, k=0; t[k]!='\0' && s[j]==t[k]; j++, k++) {  // nothing in inner loop runs without a math
+		for (j = i, k = 0; t[k] != '\0' && s[j] == t[k]; j++, k++) {  // nothing in inner loop runs without a math
 			printf("index j is %d\n", j);
 			printf("index k is %d\n", k);
 			printf("char %c in string s at index j is %d\n", s[j], j);
 			printf("char %c in string t at index k is %d\n", t[k], k);
 		}
-		if (k > 0 && t[k] == '\0') {
+		if (k > 0 && t[k] == '\0')
 			pos = i;
-		}
 	}
 	return pos;
 }
-
