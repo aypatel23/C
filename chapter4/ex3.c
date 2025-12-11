@@ -1,3 +1,5 @@
+/* Given the basic framework, it's straightforward to extend the calculator. Add the modulus (%) operator and provisions for negative numbers.*/
+
 #include <stdio.h>
 #include <stdlib.h> /* for atof() */
 #include <ctype.h>
@@ -14,48 +16,49 @@ int main(void)
 	int type;
 	double op2;
 	char s[MAXOP];
+
 	while ((type = getop(s)) != EOF) {
 		switch (type) {
-			case NUMBER:
-				push(atof(s));
-				break;
-			case '+':
-				push(pop() + pop());
-				break;
-			case '*':
-				push(pop() * pop());
-				break;
-			case '-':
-				op2 = pop();
-				push(pop() - op2);
-				break;
-			case '/':
-				op2 = pop();
-				if (op2 != 0.0)
-					push(pop() / op2);
-				else
-					printf("error: zero divisor\n");
-				break;
-			case '%':
-				op2 = pop();
-				if (op2 != 0.0)
-					push(fmod(pop(), op2));
-				else
-					printf("error: zero divisor for modulus\n");
-				break;
-			case '\n':
-				printf("\t%.8g\n", pop());
-				break;
-			default:
-				printf("error: unknown command %s\n", s);
-				break;
+		case NUMBER:
+			push(atof(s));
+			break;
+		case '+':
+			push(pop() + pop());
+			break;
+		case '*':
+			push(pop() * pop());
+			break;
+		case '-':
+			op2 = pop();
+			push(pop() - op2);
+			break;
+		case '/':
+			op2 = pop();
+			if (op2 != 0.0)
+				push(pop() / op2);
+			else
+				printf("error: zero divisor\n");
+			break;
+		case '%':
+			op2 = pop();
+			if (op2 != 0.0)
+				push(fmod(pop(), op2));
+			else
+				printf("error: zero divisor for modulus\n");
+			break;
+		case '\n':
+			printf("\t%.8g\n", pop());
+			break;
+		default:
+			printf("error: unknown command %s\n", s);
+			break;
 		}
 	}
 	return 0;
 }
 
 #define MAXVAL 100 /* maximum depth of val stack */
-int sp = 0; /* next free stack position */
+int sp; /* next free stack position */
 double val[MAXVAL]; /* value stack */
 /* push: push f onto value stack */
 void push(double f)
@@ -84,37 +87,32 @@ int getop(char s[])
 	int i = 0;
 	int next, c;
 
+	/* skip white space */
 	while ((s[0] = c = getch()) == ' ' || c == '\t')
 		;
+
 	s[1] = '\0';
-	if (!isdigit(c) && c != '.' && c != '-') {
-		return c; // Not a number, not '.', not '-'. Returns an operator (like '+', '*', '/')
-	}
-	if (c == '-' ) { // handle - operator
+
+	/* Not a number, not '.', not '-'. Returns an operator (like '+', '*', '/')*/
+	if (!isdigit(c) && c != '.' && c != '-')
+		return c;
+
+	/* Handle - operator*/
+	if (c == '-') {
 		next = getch();
-		ungetch(next); // Put it back immediately
-
-		if (!isdigit(next) && next != '.') { // if next char is not a digit or '.', then '-' would be subtraction
-			return c; // Return '-' as the operator
-		}
-		// otherwise, keep - in s[0] and proceed to next number
+		if (!isdigit(next) && next != '.')
+			return c;
+		c = next;
+	} else {
+		c = getch();
 	}
 
-	// collect integer part 
-	// we already handled s[0] so s[++i] to start filling after s[0]
-	// we only collect digits, regardless of whether s[0] was '-' or a digit
-	// Check if s[0] was the '-' sign, if so, i starts at 1, and we get the next char
-	if (s[0] == '-' || isdigit(s[0])) {
-		// If s[0] was not skipped (i.e., it's a valid start), we start collection
-		// by reading the characters that follow it.
-		if (isdigit(s[++i] = c = getch())) {
-			while (isdigit(s[++i] = c = getch()))
-				;
-		}
-	}
+	while (isdigit(s[++i] = c))
+		c = getch();
 
-	if (c == '.') /* collect fraction part */
-		while (isdigit(s[++i] = c = getch()))
+	if (c == '.') { /* collect fraction part */
+		c = getch();
+	}
 			;
 	s[i] = '\0';
 	if (c != EOF)
@@ -124,7 +122,7 @@ int getop(char s[])
 
 #define BUFSIZE 100
 char buf[BUFSIZE]; /* buffer for ungetch */
-int bufp = 0; /* next free position in buf */
+int bufp; /* next free position in buf */
 int getch(void) /* get a (possibly pushed-back) character */
 {
 	return (bufp > 0) ? buf[--bufp] : getchar();
