@@ -1,113 +1,185 @@
 /*  Write a program that reads a C program and prints in alphabetical order each group of variable names that are identical in the first 6 characters, but different somewhere
 thereafter. Don't count words within strings and comments. Make 6 a parameter that can be set from the command line.*/
 
+
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
 #define MAXWORD 100
-#define BUFSIZE 100
+#define BUFSIZE 100 /* buffer size for ungetch */
+#define YES 1
+#define NO 0
 
-struct tnode { /* the tree node: */
+/*
+ * Write a program that reads a C program and prints in alphabetical order
+ * each group of variable names that are identical in the first 6 characters
+ * but different somewhere thereafter. Don't count words within strings and
+ * comments. Make 6 a parameter that can be set from the command line.
+ */
+
+static char buf[BUFSIZE]; /* buffer for ungetch */
+static int bufp; /* next free position in buf */
+struct tnode { /* the tree node */
 	char *word; /* points to the text */
-	int count; /* number of occurrences */
+	int match; /* match found */
 	struct tnode *left; /* left child */
 	struct tnode *right; /* right child */
 };
 
-
-struct tnode *addtree(struct tnode *, char *);
-void treeprint(struct tnode *);
-int getword(char *, int);
-struct tnode *talloc(void);
-char *my_strdup(char *);
-
-static char buf[BUFSIZE]; /* buffer for ungetch */
-static int bufp; /* next free position in buf */
-
+static struct tnode *addtreex(struct tnode *, char *, int num, int *);
+static void treexprint(struct tnode *t);
+static struct tnode *talloc(void);
+static int compare(char *s, struct tnode *p, int num, int *found);
+/* getword and its helpers */
+static int getword(char *, int);
 static int getch(void);
 static void ungetch(int);
 
-/* word frequency count */
-int main(void)
+/* print in alphabetic order each group of variable names */
+/* identical in the first num characters (default 6) */
+int main(int argc, char *argv[])
 {
 	struct tnode *root;
 	char word[MAXWORD];
+	int found = NO;	/* match found? */
+	int num;	/* number of the first identical characters */
+
+	num = (--argc && (*++argv)[0] == '-') ? atoi(argv[0]+1) : 6;
 	root = NULL;
-	while (getword(word, MAXWORD) != EOF)
-		if (isalpha(word[0]))
-			root = addtree(root, word);
-	treeprint(root);
+	while (getword(word, MAXWORD) != EOF) {
+		if (isalpha(word[0]) && strlen(word) >= num)
+			root = addtreex(root, word, num, &found);
+		found = NO;
+	}
+	treexprint(root);
+
 	return 0;
 }
 
-/* addtree: add a node with w, at or below p */
-struct tnode *addtree(struct tnode *p, char *w)
+/* add a node with w, at or below p */
+static struct tnode *addtreex(struct tnode *p, char *w, int num, int *found)
 {
 	int cond;
+
 	if (p == NULL) { /* a new word has arrived */
-		p = talloc(); /* make a new node */
-		p->word = my_strdup(w);
-		p->count = 1;
+		p = talloc(); /* make a new word */
+		p->word = strdup(w);
+		p->match = *found;
 		p->left = p->right = NULL;
-	} else if ((cond = strcmp(w, p->word)) == 0)
-		p->count++; /* repeated word */
-	else if (cond < 0) /* less than into left subtree */
-		p->left = addtree(p->left, w);
-	else /* greater than into right subtree */
-		p->right = addtree(p->right, w);
+	} else if ((cond = compare(w, p, num, found)) < 0) {
+		p->left = addtreex(p->left, w, num, found);
+	} else if (cond > 0) {
+		p->right = addtreex(p->right, w, num, found);
+	}
+
 	return p;
 }
 
-/* treeprint: in-order print of tree p */
-void treeprint(struct tnode *p)
-{
-	if (p != NULL) {
-		treeprint(p->left);
-		printf("%4d %s\n", p->count, p->word);
-		treeprint(p->right);
-	}
-}
-
-
-
 /* talloc: make a tnode */
-struct tnode *talloc(void)
+static struct tnode *talloc(void)
 {
 	return (struct tnode *) malloc(sizeof(struct tnode));
 }
 
-/* my_strdup: create a duplicate of string s in dynamic memory */
-char *my_strdup(char *s) /* make a duplicate of s */
+/* in order print of tree p */
+static void treexprint(struct tnode *p)
 {
-	char *p;
-	p = (char *) malloc(strlen(s)+1); /* +1 for '\0' */
-	if (p != NULL)
-		strcpy(p, s);
-	return p;
+	if (p != NULL) {
+		treexprint(p->left);
+		if (p->match) {
+			printf("%s\n", p->word);
+		}
+		treexprint(p->right);
+	}
 }
 
-/* getword: get next word or character from input */
-int getword(char *word, int lim)
+/* compare words and update p-> match */
+static int compare(char *s, struct tnode *p, int num, int *found)
 {
-	int c, getch(void);
-	void ungetch(int);
-	char *w = word;
-	while (isspace(c = getch()))
-		;
-	if (c != EOF)
-		*w++ = c;
-	if (!isalpha(c)) {
-		*w = '\0';
-		return c;
+	int i;
+	char *t = p->word;
+
+	for (i = 0; *s == *t; i++, s++, t++)
+		if (*s == '\0')
+			return 0;
+	if (i >= num) { /*identical in first num chars? */
+		*found = YES;
+		p->match = YES;
 	}
-	for ( ; --lim > 0; w++)
-		if (!isalnum(*w = getch())) {
+
+	return *s - *t;
+}
+
+/* get next word or character from input */
+static int getword(char *word, int lim)
+{
+	int	c, d;
+	char	*w = word;
+
+	for ( ; ; ) {
+		while (isspace(c = getch()))
+			;
+		if (c == '#') {
+			while ((c = getch()) != '\n')
+				if (c == EOF)
+					return EOF;
+			continue;
+
+		}
+		if (c == '/') {
+			if ((d = getch()) != '*')
+				ungetch(d);
+			else
+				for ( ; ; )
+					if ((c = getch()) != '*') {
+						if (c == EOF)
+							return EOF;
+						else
+							continue;
+					} else if ((c = getch()) != '/') {
+						if (c == EOF)
+							return EOF;
+						else {
+							ungetch(c);
+							continue;
+						}
+					} else
+						break;
+			continue;
+		}
+		if (c == '\'') {
+			if ((c = getch()) == '\\')
+				c = getch();
+			if ((c = getch()) != '\'')
+				return EOF;
+			else
+				continue;
+		}
+		if (c == '\"') {
+			for ( ; ; )
+				if ((c = getch()) == '\"')
+					break;
+				else if (c == '\\')
+					c = getch();
+				else if (c == EOF)
+					return EOF;
+			continue;
+		}
+		if (!isalpha(c)) {
+			if (c == EOF)
+				return c;
+		} else
+			break;
+	}
+	for (*w++ = c; --lim > 1; w++)
+		if (!isalnum(*w = getch()) && *w != '_') {
 			ungetch(*w);
 			break;
 		}
 	*w = '\0';
+
 	return word[0];
 }
 
@@ -115,6 +187,7 @@ int getword(char *word, int lim)
 static int getch(void)
 {
 	return (bufp > 0) ? buf[--bufp] : getchar();
+
 }
 
 /* push character back on input */
